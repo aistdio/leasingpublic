@@ -1,0 +1,119 @@
+main:
+  db:
+    autoinit: true
+
+kafka:
+  topic-names:
+    cars: cars
+    clients: clients
+    contracts: contracts
+    payments: payments
+
+security:
+  rate-limit:
+    max-attempts: 5
+    block-duration-minutes: 1
+  use_jwt: true
+  use_csrf: true
+  admin:
+    username: admin
+    password: 1234
+
+
+jwt:
+  secret: 13355c453eccbc036f706bd46032ffbe75b8863fccb29efedbc48c169a24b800
+  expiration: 86400000
+
+
+server:
+  port: 8443
+  ssl:
+    enabled: true
+    key-store: 'classpath:keystore.p12'
+    key-store-password: password
+    key-store-type: PKCS12
+    key-alias: tomcat
+
+spring:
+  kafka:
+    bootstrap-servers: broker1:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      retries: 3
+      batch-size: 16384B
+      acks: all
+    consumer:
+      group-id: consumer-group-autoleasing
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      enable-auto-commit: false
+      auto-commit-interval: 1s
+      auto-offset-reset: earliest
+      properties:
+        spring.json.trusted.packages: "*"
+    listener:
+      poll-timeout: 3s
+      type: single
+      concurrency: 3
+      ack-mode: manual-immediate
+
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: 'jdbc:postgresql://db:5432/autoleasing'
+    username: postgres
+    password: 1234
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    properties:
+      hibernate:
+        javax:
+          cache:
+            missing_cache_strategy: create
+            provider: org.ehcache.jsr107.EhcacheCachingProvider
+            uri: 'classpath:ehcache.xml'
+        cache:
+          region:
+            factory_class: org.hibernate.cache.jcache.internal.JCacheRegionFactory
+          use_second_level_cache: true
+          use_query_cache: true
+        generate_statistics: false
+        format_sql: false
+      jakarta:
+        persistence:
+          sharedCache:
+            mode: ALL
+
+  sql:
+    init:
+      mode: never
+
+  flyway:
+    enabled: true
+    schemas: autoleasing_flyway, autoleasing_core, autoleasing_core_history
+
+
+logging:
+  level:
+    org.springframework.kafka: WARN
+    org.apache.kafka: WARN
+    org:
+      hibernate:
+#        stat: DEBUG
+#        cache: DEBUG
+        engine:
+          transaction:
+            internal:
+#              TransactionImpl: DEBUG
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+#              BasicBinder: TRACE
+        orm:
+          jdbc:
+#            bind: TRACE
+      springframework: INFO
