@@ -41,11 +41,11 @@ Before Task 1 the orchestrator runs `/release v1.0` steps 1–3 (Jira stories, Q
 
 | Story | Slug | Tasks | Jira key |
 |---|---|---|---|
-| A. Platform | `platform` | 1–3 | set at story creation |
-| B. Client data | `client-data` | 4–7 | set at story creation |
-| C. Client cabinet | `client-cabinet` | 8–9 | set at story creation |
-| D. Leasing assistant | `leasing-assistant` | 10–14 | set at story creation |
-| E. Assistant UI | `assistant-ui` | 15 | set at story creation |
+| A. Platform | `platform` | 1–3 | LEAS-5 |
+| B. Client data | `client-data` | 4–7 | LEAS-6 |
+| C. Client cabinet | `client-cabinet` | 8–9 | LEAS-7 |
+| D. Leasing assistant | `leasing-assistant` | 10–14 | LEAS-8 |
+| E. Assistant UI | `assistant-ui` | 15 | LEAS-9 |
 | — | release check | 16 | — |
 
 ## File Structure (new code)
@@ -97,7 +97,7 @@ src/test/resources/  application-test.yml, docker-java.properties, sql/cleanup.s
 - [ ] **Step 1: Create the branch**
 
 ```bash
-git checkout develop && git checkout -b feature/<KEY>-platform
+git checkout develop && git checkout -b feature/LEAS-5-platform
 ```
 
 - [ ] **Step 2: Generate the Gradle wrapper (no local Gradle needed)**
@@ -357,7 +357,7 @@ Expected: image builds.
 - [ ] **Step 10: Commit**
 
 ```bash
-git add -A && git commit -m "<KEY> Move build to Gradle, add Testcontainers test setup"
+git add -A && git commit -m "LEAS-5 Move build to Gradle, add Testcontainers test setup"
 ```
 
 ---
@@ -677,7 +677,7 @@ Expected: all tests PASS.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add -A && git commit -m "<KEY> Add environment info endpoint, request id, JSON logs, Swagger"
+git add -A && git commit -m "LEAS-5 Add environment info endpoint, request id, JSON logs, Swagger"
 ```
 
 ---
@@ -808,9 +808,9 @@ Expected: `{"appEnv":"integration-testing","version":"1.0.0"}`; log lines are JS
 - [ ] **Step 4: Commit and merge story A**
 
 ```bash
-git add -A && git commit -m "<KEY> Compose core profile with the integration and functional testing stand"
+git add -A && git commit -m "LEAS-5 Compose core profile with the integration and functional testing stand"
 export JAVA_HOME="/c/Program Files/JetBrains/PyCharm2025.3/jbr" && ./gradlew test
-git checkout develop && git merge --no-ff feature/<KEY>-platform -m "<KEY> Merge platform" && ./gradlew test
+git checkout develop && git merge --no-ff feature/LEAS-5-platform -m "LEAS-5 Merge platform" && ./gradlew test
 ```
 
 ---
@@ -831,7 +831,7 @@ git checkout develop && git merge --no-ff feature/<KEY>-platform -m "<KEY> Merge
 - [ ] **Step 1: Create the branch**
 
 ```bash
-git checkout develop && git checkout -b feature/<KEY>-client-data
+git checkout develop && git checkout -b feature/LEAS-6-client-data
 ```
 
 - [ ] **Step 2: Write the failing test**
@@ -1085,7 +1085,7 @@ Expected: all PASS.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add -A && git commit -m "<KEY> Add client legal data, payment dates and components, application users"
+git add -A && git commit -m "LEAS-6 Add client legal data, payment dates and components, application users"
 ```
 
 ---
@@ -1434,7 +1434,7 @@ Expected: all PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add -A && git commit -m "<KEY> Store users in the database with roles CLIENT and MANAGER"
+git add -A && git commit -m "LEAS-6 Store users in the database with roles CLIENT and MANAGER"
 ```
 
 ---
@@ -1703,7 +1703,7 @@ Expected: all PASS.
 - [ ] **Step 8: Commit**
 
 ```bash
-git add -A && git commit -m "<KEY> Payment schedule with due dates, principal, markup and VAT"
+git add -A && git commit -m "LEAS-6 Payment schedule with due dates, principal, markup and VAT"
 ```
 
 ---
@@ -2405,10 +2405,10 @@ Expected: all PASS.
 - [ ] **Step 8: Verify on the stand, commit and merge story B**
 
 ```bash
-git add -A && git commit -m "<KEY> Fixed-seed generator for clients, contracts, payments and users"
+git add -A && git commit -m "LEAS-6 Fixed-seed generator for clients, contracts, payments and users"
 docker compose --profile core up -d --build app-it && sleep 40
 docker exec autolease-db psql -U postgres -d autolease_it -c "SELECT COUNT(*) FROM autoleasing_core.payments"
-./gradlew test && git checkout develop && git merge --no-ff feature/<KEY>-client-data -m "<KEY> Merge client data" && ./gradlew test
+./gradlew test && git checkout develop && git merge --no-ff feature/LEAS-6-client-data -m "LEAS-6 Merge client data" && ./gradlew test
 ```
 
 Expected: payment count between 1 500 and 2 800; log line «Сгенерированы данные…».
@@ -2442,7 +2442,7 @@ Note: the writer stores enum values with `toString()`, which for the legacy enum
 - [ ] **Step 1: Create the branch**
 
 ```bash
-git checkout develop && git checkout -b feature/<KEY>-client-cabinet
+git checkout develop && git checkout -b feature/LEAS-7-client-cabinet
 ```
 
 - [ ] **Step 2: Write the fixture** `src/test/resources/sql/finance-fixture.sql`
@@ -2949,7 +2949,7 @@ Expected: all PASS.
 - [ ] **Step 10: Commit**
 
 ```bash
-git add -A && git commit -m "<KEY> Cabinet API: profile, contracts, schedule, payments, summary"
+git add -A && git commit -m "LEAS-7 Cabinet API: profile, contracts, schedule, payments, summary"
 ```
 
 ---
@@ -3485,7 +3485,7 @@ Expected: all PASS.
 - [ ] **Step 11: Commit**
 
 ```bash
-git add -A && git commit -m "<KEY> Client cabinet web UI with installable PWA shell"
+git add -A && git commit -m "LEAS-7 Client cabinet web UI with installable PWA shell"
 ```
 
 - [ ] **Step 12: Stand check (orchestrator) and merge story C**
@@ -3493,7 +3493,7 @@ git add -A && git commit -m "<KEY> Client cabinet web UI with installable PWA sh
 Rebuild `app-it`, open `http://localhost:8081/` in the browser pane, log in as `client01` (password from `application.yml`), check the three tabs; switch to a 375 px wide viewport and confirm there is no horizontal page scroll. Then:
 
 ```bash
-./gradlew test && git checkout develop && git merge --no-ff feature/<KEY>-client-cabinet -m "<KEY> Merge client cabinet" && ./gradlew test
+./gradlew test && git checkout develop && git merge --no-ff feature/LEAS-7-client-cabinet -m "LEAS-7 Merge client cabinet" && ./gradlew test
 ```
 
 ---
@@ -3520,7 +3520,7 @@ Rebuild `app-it`, open `http://localhost:8081/` in the browser pane, log in as `
 - [ ] **Step 1: Create the branch**
 
 ```bash
-git checkout develop && git checkout -b feature/<KEY>-leasing-assistant
+git checkout develop && git checkout -b feature/LEAS-8-leasing-assistant
 ```
 
 - [ ] **Step 2: Write the failing tests**
@@ -3926,7 +3926,7 @@ Expected: all PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add -A && git commit -m "<KEY> Agent tools: payments summary, schedule, contracts overview"
+git add -A && git commit -m "LEAS-8 Agent tools: payments summary, schedule, contracts overview"
 ```
 
 ---
@@ -3939,7 +3939,7 @@ git add -A && git commit -m "<KEY> Agent tools: payments summary, schedule, cont
 
 **Interfaces:**
 - Consumes: tool names (Task 10).
-- Produces: `record RoutingDecision(Set<String> allowedTools, String rule)` (`allowedTools` sorted); `ToolRouter.route(String question): RoutingDecision`. Rules on the lower-cased question with `ё` → `е`: `PAYMENTS` = `оплат|заплат|платил|списал|начисл` → `payments_summary`; `SCHEDULE` = `график|следующ|ближайш|когда\s.*плат|срок` → `schedule`; `CONTRACTS` = `договор|машин|автомоб|долг|остат` → `contracts_overview`. Several matches → union, rule names joined with `+` in rule order. No match → all three tools, rule `FALLBACK_ALL`.
+- Produces: `record RoutingDecision(Set<String> allowedTools, String rule)` (`allowedTools` sorted); `ToolRouter.route(String question): RoutingDecision`. Rules on the lower-cased question with `ё` → `е`: `PAYMENTS` = `оплат|оплач|заплат|платил|списал|начисл` → `payments_summary`; `SCHEDULE` = `график|следующ|ближайш|когда\s.*плат|срок` → `schedule`; `CONTRACTS` = `договор|машин|автомоб|долг|остат` → `contracts_overview`. Several matches → union, rule names joined with `+` in rule order. No match → all three tools, rule `FALLBACK_ALL`.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -4021,7 +4021,7 @@ public class ToolRouter {
     }
 
     private static final List<Rule> RULES = List.of(
-            new Rule("PAYMENTS", Pattern.compile("оплат|заплат|платил|списал|начисл"), PaymentsSummaryTool.NAME),
+            new Rule("PAYMENTS", Pattern.compile("оплат|оплач|заплат|платил|списал|начисл"), PaymentsSummaryTool.NAME),
             new Rule("SCHEDULE", Pattern.compile("график|следующ|ближайш|когда\\s.*плат|срок"), ScheduleTool.NAME),
             new Rule("CONTRACTS", Pattern.compile("договор|машин|автомоб|долг|остат"), ContractsOverviewTool.NAME));
 
@@ -4054,7 +4054,7 @@ Expected: PASS.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add -A && git commit -m "<KEY> Deterministic tool router by question intent"
+git add -A && git commit -m "LEAS-8 Deterministic tool router by question intent"
 ```
 
 ---
@@ -4620,7 +4620,7 @@ Expected: all PASS (the test profile uses `provider: mock`).
 - [ ] **Step 7: Commit**
 
 ```bash
-git add -A && git commit -m "<KEY> Language model clients: Ollama and deterministic mock"
+git add -A && git commit -m "LEAS-8 Language model clients: Ollama and deterministic mock"
 ```
 
 ---
@@ -4926,7 +4926,7 @@ Expected: all PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add -A && git commit -m "<KEY> Store agent traces with steps, trace API for managers"
+git add -A && git commit -m "LEAS-8 Store agent traces with steps, trace API for managers"
 ```
 
 ---
@@ -5657,8 +5657,8 @@ Expected: all PASS.
 - [ ] **Step 13: Commit and merge story D**
 
 ```bash
-git add -A && git commit -m "<KEY> Leasing assistant: orchestrator, strict JSON answer, ask endpoint"
-./gradlew test && git checkout develop && git merge --no-ff feature/<KEY>-leasing-assistant -m "<KEY> Merge leasing assistant" && ./gradlew test
+git add -A && git commit -m "LEAS-8 Leasing assistant: orchestrator, strict JSON answer, ask endpoint"
+./gradlew test && git checkout develop && git merge --no-ff feature/LEAS-8-leasing-assistant -m "LEAS-8 Merge leasing assistant" && ./gradlew test
 ```
 
 ---
@@ -5679,7 +5679,7 @@ git add -A && git commit -m "<KEY> Leasing assistant: orchestrator, strict JSON 
 - [ ] **Step 1: Create the branch**
 
 ```bash
-git checkout develop && git checkout -b feature/<KEY>-assistant-ui
+git checkout develop && git checkout -b feature/LEAS-9-assistant-ui
 ```
 
 - [ ] **Step 2: Extend the failing test** — in `StaticUiTest` add `"/traces.html", "/js/chat.js", "/js/traces.js"` to `staticFilesArePublic`, and:
@@ -5961,13 +5961,13 @@ Expected: all PASS.
 - [ ] **Step 8: Commit, stand check (orchestrator), merge story E**
 
 ```bash
-git add -A && git commit -m "<KEY> Assistant chat with answer cards and manager trace view"
+git add -A && git commit -m "LEAS-9 Assistant chat with answer cards and manager trace view"
 ```
 
 Rebuild `app-it`; in the browser pane as `client01` ask the three suggested questions (Ollama running), then log in as `manager` and open one trace from the list. Then:
 
 ```bash
-./gradlew test && git checkout develop && git merge --no-ff feature/<KEY>-assistant-ui -m "<KEY> Merge assistant UI" && ./gradlew test
+./gradlew test && git checkout develop && git merge --no-ff feature/LEAS-9-assistant-ui -m "LEAS-9 Merge assistant UI" && ./gradlew test
 ```
 
 ---
