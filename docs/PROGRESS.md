@@ -13,6 +13,7 @@ Env: JDK = `C:\Program Files\JetBrains\PyCharm2025.3\jbr` (no system Java); Olla
 - [x] Jira: stories LEAS-5..9, QA tasks LEAS-10..14 (project key LEAS; no Bug type / components yet)
 - [x] LEAS-5 platform merged to develop (e40ac41); stand :8081 up
 - [x] LEAS-6 client data merged (3ebb1ef): schema, DB users/roles, schedule calculator, seed (2136 payments)
+- [x] LEAS-7 client cabinet merged (bb2aea0): finance query service, /api/me API, web UI + PWA
 
 ## Phases
 - [ ] 1. Setup + v1.0 build (Must)
