@@ -11,8 +11,10 @@ import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.HashMap;
@@ -102,6 +104,18 @@ public class ControllerAdvice {
     public ResponseEntity<DefaultErrorResponse> handleCustomValidation(ValidationException e) {
         log.warn(e.getMessage());
         return ResponseEntity.badRequest().body(new DefaultErrorResponse(e.getMessage()));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<DefaultErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new DefaultErrorResponse("Неверное значение параметра " + e.getName() + ": " + e.getValue()));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<DefaultErrorResponse> handleMissingParameter(MissingServletRequestParameterException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new DefaultErrorResponse("Не указан обязательный параметр " + e.getParameterName()));
     }
 
     @ExceptionHandler(DataCreationException.class)

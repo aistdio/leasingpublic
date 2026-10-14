@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1f4e79">
+  <title>AutoLease — личный кабинет</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/css/app.css">
+  <script type="module" src="/js/cabinet.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <span class="brand">AutoLease</span>
+  <span class="client-name" data-testid="client-name"></span>
+  <span class="env-badge" data-testid="env-badge"></span>
+  <button type="button" class="link" data-testid="logout-button">Выйти</button>
+</header>
+<nav class="tabs">
+  <button type="button" data-tab="contracts" data-testid="tab-contracts">Договоры</button>
+  <button type="button" data-tab="schedule" data-testid="tab-schedule">График</button>
+  <button type="button" data-tab="payments" data-testid="tab-payments">Платежи</button>
+</nav>
+<main>
+  <p class="error" data-testid="cabinet-error" hidden></p>
+
+  <section data-panel="contracts">
+    <h2>Мои договоры</h2>
+    <p class="empty" data-testid="contracts-empty" hidden>Договоров пока нет.</p>
+    <div class="table-wrap">
+      <table data-testid="contracts-table">
+        <thead><tr><th>Договор</th><th>Автомобиль</th><th>Статус</th><th>Начало</th><th>Срок</th>
+          <th>Платёж в месяц</th><th>Остаток долга</th><th>Ближайший платёж</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section data-panel="schedule" hidden>
+    <h2>График платежей</h2>
+    <label>Договор <select data-testid="schedule-contract-select"></select></label>
+    <div class="table-wrap">
+      <table data-testid="schedule-table">
+        <thead><tr><th>№</th><th>Дата платежа</th><th>Сумма</th><th>Выкупная часть</th><th>Удорожание</th>
+          <th><abbr title="Налог на добавленную стоимость">НДС</abbr></th><th>Пени</th><th>Статус</th><th>Дата оплаты</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section data-panel="payments" hidden>
+    <h2>Платежи за период</h2>
+    <div class="filters">
+      <label>С <input type="date" data-testid="payments-from"></label>
+      <label>По <input type="date" data-testid="payments-to"></label>
+      <label>Статус
+        <select data-testid="payments-status">
+          <option value="">Все</option>
+          <option value="PAID">Оплачен</option>
+          <option value="UNPAID">Не оплачен</option>
+          <option value="CANCELED">Отменён</option>
+        </select>
+      </label>
+      <button type="button" data-testid="payments-apply">Показать</button>
+    </div>
+    <p class="error" data-testid="payments-error" hidden></p>
+    <p class="summary" data-testid="payments-total"></p>
+    <div class="table-wrap">
+      <table data-testid="payments-table">
+        <thead><tr><th>Договор</th><th>Дата платежа</th><th>Сумма</th><th>Статус</th><th>Дата оплаты</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+</body>
+</html>
