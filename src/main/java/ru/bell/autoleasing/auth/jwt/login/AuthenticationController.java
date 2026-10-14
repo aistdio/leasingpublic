@@ -18,6 +18,7 @@ import ru.bell.autoleasing.auth.jwt.login.dto.AuthenticationRequest;
 import ru.bell.autoleasing.auth.jwt.login.dto.AuthenticationResponse;
 import ru.bell.autoleasing.config.security.LoginAttemptService;
 import ru.bell.autoleasing.exceptions.DefaultErrorResponse;
+import ru.bell.autoleasing.user.AppUserPrincipal;
 import ru.bell.autoleasing.utilities.ClientIp;
 import ru.bell.autoleasing.utilities.security.JwtUtil;
 
@@ -51,7 +52,9 @@ public class AuthenticationController {
             UserDetails user = userDetailsService.loadUserByUsername(request.getUsername());
             String jwtToken = jwtUtil.generateToken(user);
 
-            return ResponseEntity.ok(new AuthenticationResponse(jwtToken));
+            String role = ((AppUserPrincipal) user).role().name();
+
+            return ResponseEntity.ok(new AuthenticationResponse(jwtToken, role));
 
         } catch (BadCredentialsException e) {
             int remainingAttemptsForUser = loginAttemptService.getRemainingAttempts(username);
