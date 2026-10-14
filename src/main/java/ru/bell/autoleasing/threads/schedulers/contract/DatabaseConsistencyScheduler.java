@@ -2,6 +2,7 @@ package ru.bell.autoleasing.threads.schedulers.contract;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import ru.bell.autoleasing.contract.model.Contract;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
+@ConditionalOnProperty(name = "autolease.legacy.contract-file-sync.enabled", havingValue = "true")
 @AllArgsConstructor
 public class DatabaseConsistencyScheduler {
     private final ContractService contractService;

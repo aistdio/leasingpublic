@@ -1,6 +1,9 @@
-main:
-  db:
-    autoinit: true
+autolease:
+  app-env: ${APP_ENV:local}
+  timezone: Europe/Moscow
+  legacy:
+    contract-file-sync:
+      enabled: false
 
 kafka:
   topic-names:
@@ -21,22 +24,24 @@ security:
 
 
 jwt:
-  secret: 13355c453eccbc036f706bd46032ffbe75b8863fccb29efedbc48c169a24b800
+  secret: ${JWT_SECRET:13355c453eccbc036f706bd46032ffbe75b8863fccb29efedbc48c169a24b800}
   expiration: 86400000
 
 
 server:
-  port: 8443
+  port: ${SERVER_PORT:8080}
   ssl:
-    enabled: true
+    enabled: ${SERVER_SSL_ENABLED:false}
     key-store: 'classpath:keystore.p12'
     key-store-password: password
     key-store-type: PKCS12
     key-alias: tomcat
 
 spring:
+  application:
+    name: autolease
   kafka:
-    bootstrap-servers: broker1:9092
+    bootstrap-servers: localhost:9092      # container sets SPRING_KAFKA_BOOTSTRAP_SERVERS
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -60,9 +65,9 @@ spring:
 
   datasource:
     driverClassName: org.postgresql.Driver
-    url: 'jdbc:postgresql://db:5432/autoleasing'
-    username: postgres
-    password: 1234
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/autolease_local}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:1234}
 
   jpa:
     hibernate:
@@ -95,9 +100,26 @@ spring:
     enabled: true
     schemas: autoleasing_flyway, autoleasing_core, autoleasing_core_history
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
 
 logging:
+  structured:
+    format:
+      console: logstash
+    json:
+      add:
+        app: autolease
+        env: ${APP_ENV:local}
   level:
+    ru.bell.autoleasing: DEBUG
     org.springframework.kafka: WARN
     org.apache.kafka: WARN
     org:
