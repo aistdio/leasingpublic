@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1f4e79">
+  <title>AutoLease — вход</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/css/app.css">
+  <script type="module" src="/js/login.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <span class="brand">AutoLease</span>
+  <span class="env-badge" data-testid="env-badge"></span>
+</header>
+<main class="login">
+  <h1>Вход в личный кабинет</h1>
+  <p class="notice" data-testid="login-notice" hidden></p>
+  <form id="login-form" data-testid="login-form">
+    <label>Логин <input name="username" autocomplete="username" required data-testid="login-username"></label>
+    <label>Пароль <input name="password" type="password" autocomplete="current-password" required data-testid="login-password"></label>
+    <button type="submit" data-testid="login-submit">Войти</button>
+    <p class="error" data-testid="login-error" hidden></p>
+  </form>
+</main>
+</body>
+</html>
