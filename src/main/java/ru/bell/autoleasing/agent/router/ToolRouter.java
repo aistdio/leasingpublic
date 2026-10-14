@@ -15,7 +15,7 @@ public class ToolRouter {
 
     private static final List<Rule> RULES = List.of(
             new Rule("PAYMENTS", Pattern.compile("оплат|оплач|заплат|платил|списал|начисл"), PaymentsSummaryTool.NAME),
-            new Rule("SCHEDULE", Pattern.compile("график|следующ|ближайш|когда\s.*плат|срок"), ScheduleTool.NAME),
+            new Rule("SCHEDULE", Pattern.compile("график|следующ|ближайш|когда\\s.*плат|срок"), ScheduleTool.NAME),
             new Rule("CONTRACTS", Pattern.compile("договор|машин|автомоб|долг|остат"), ContractsOverviewTool.NAME));
 
     private static final Set<String> ALL_TOOLS = Collections.unmodifiableSet(new TreeSet<>(

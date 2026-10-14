@@ -34,6 +34,15 @@ class ToolRouterTest {
     }
 
     @Test
+    void whenQuestionWithAnyWhitespaceAfterWhenMatchesScheduleOnly() {
+        for (String q : new String[]{"Когда будет платеж", "Когда\tбудет платеж", "Когда\nбудет платеж"}) {
+            RoutingDecision d = router.route(q);
+            assertThat(d.allowedTools()).containsExactly("schedule");
+            assertThat(d.rule()).isEqualTo("SCHEDULE");
+        }
+    }
+
+    @Test
     void upperCaseIsRecognised() {
         assertThat(router.route("ОПЛАТА ЗА МАЙ").allowedTools()).containsExactly("payments_summary");
     }
