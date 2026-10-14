@@ -4,11 +4,12 @@ Spec: `docs/superpowers/specs/2026-10-14-autolease-qa-design.md` (approved 2026-
 Work phase by phase (token limits). A plan is written only for the next phase.
 
 ## Next
-Phase 1 — commit setup files; write plan for v1.0 only (superpowers:writing-plans); execute via superpowers:subagent-driven-development: Opus orchestrates, implementer/reviewer subagents run on Sonnet (pass model). Jira must be connected before `/release v1.0` stories step.
-User in parallel: register Jira Cloud Free, create project `LEAS`, connect Atlassian connector.
+Phase 1 — user reviews plan `docs/superpowers/plans/2026-10-15-autolease-v1.0.md`. Then: `/release v1.0` steps 1–3 (Jira stories A–E, QA tasks, ledger) → fill keys in plan table → execute Tasks 1–16 via superpowers:subagent-driven-development (Opus orchestrates, implementer/reviewer on Sonnet, `model: "sonnet"`).
+Env: JDK = `C:\Program Files\JetBrains\PyCharm2025.3\jbr` (no system Java); Ollama has qwen3:8b + qwen3:4b; Docker 29.
 
 ## Done
 - [x] Spec, priorities, agents (dev-fixer, qa-reviewer, course-librarian), skills (/fix-ticket, /release, /checkpoint), CLAUDE.md, course index
+- [x] Setup committed (568aed6); v1.0 plan written (5 stories, 16 tasks)
 
 ## Phases
 - [ ] 1. Setup + v1.0 build (Must)
