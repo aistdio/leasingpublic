@@ -111,7 +111,8 @@ public class ClientServiceImpl implements ClientService {
         String passport = DataValidator.validateAndNormalizePassport(clientRaw.getPassport());
         String phone = DataValidator.validateAndNormalizePhone(clientRaw.getPhone());
 
-        return new Client(clientRaw.getId(), name, passport, phone);
+        return new Client(clientRaw.getId(), name, passport, phone,
+                clientRaw.getClientType(), clientRaw.getInn(), clientRaw.getLegalName());
     }
 
     private void validateClientUniqueness(Client client) {

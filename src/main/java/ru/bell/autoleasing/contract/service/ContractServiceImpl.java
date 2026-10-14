@@ -268,7 +268,9 @@ public class ContractServiceImpl implements ContractService {
                 createContractDto.downPayment(),
                 createContractDto.interestRate(),
                 monthlyPayment,
-                ContractStatus.ACTIVE
+                ContractStatus.ACTIVE,
+                null,
+                null
         );
     }
 
