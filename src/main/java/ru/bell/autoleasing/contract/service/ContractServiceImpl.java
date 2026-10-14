@@ -77,6 +77,7 @@ public class ContractServiceImpl implements ContractService {
     @Transactional
     public ContractDto update(ContractDto contractDto) {
         Contract contract = ContractMapper.toEntity(contractDto);
+        keepStoredContractNumberAndStartDate(contract);
 
         Contract contractSavedToDb = jpaContractRepository.save(contract);
 
@@ -85,6 +86,20 @@ public class ContractServiceImpl implements ContractService {
                         String.format("Не удалось обновить %s", contract)));
 
         return ContractMapper.toDto(contractSavedToDb);
+    }
+
+    private void keepStoredContractNumberAndStartDate(Contract contract) {
+        if (contract.getId() == null) {
+            return;
+        }
+        jpaContractRepository.findById(contract.getId()).ifPresent(stored -> {
+            if (contract.getContractNumber() == null) {
+                contract.setContractNumber(stored.getContractNumber());
+            }
+            if (contract.getStartDate() == null) {
+                contract.setStartDate(stored.getStartDate());
+            }
+        });
     }
 
     @Override

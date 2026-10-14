@@ -36,7 +36,7 @@ public class Contract {
     private Long id;
 
     @OneToMany(mappedBy = "contract")
-    @OrderBy("dueDate ASC")
+    @OrderBy("dueDate ASC, paymentIdContractId.paymentId ASC")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private List<Payment> payments;
 
