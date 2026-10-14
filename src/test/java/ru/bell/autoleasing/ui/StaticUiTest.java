@@ -36,12 +36,15 @@ class StaticUiTest {
 
     @Test
     void cabinetPageHasTestIds() throws Exception {
-        String html = mockMvc.perform(get("/cabinet.html")).andReturn().getResponse().getContentAsString();
+        String html = mockMvc.perform(get("/cabinet.html")).andReturn().getResponse()
+                .getContentAsString(java.nio.charset.StandardCharsets.UTF_8);
         for (String id : new String[]{"client-name", "logout-button", "tab-contracts", "tab-schedule", "tab-payments",
                 "contracts-table", "contracts-empty", "schedule-contract-select", "schedule-table", "payments-from",
                 "payments-to", "payments-status", "payments-apply", "payments-total", "payments-table"}) {
             org.assertj.core.api.Assertions.assertThat(html).contains("data-testid=\"" + id + "\"");
         }
+        org.assertj.core.api.Assertions.assertThat(html)
+                .contains("<abbr title=\"Налог на добавленную стоимость\">");
     }
 
     @Test

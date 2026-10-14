@@ -26,9 +26,18 @@ function statusCell(row) {
 
 const money = (value) => el('td', { class: 'num' }, formatMoney(value));
 
+function months(n) {
+  const lastTwo = n % 100;
+  const last = n % 10;
+  if (last === 1 && lastTwo !== 11) return `${n} месяц`;
+  if (last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14)) return `${n} месяца`;
+  return `${n} месяцев`;
+}
+
 async function loadProfile() {
   const me = await apiJson('/api/me');
-  $('client-name').textContent = `${me.legalName} · ИНН ${me.inn}`;
+  $('client-name').replaceChildren(me.legalName, ' · ',
+    el('abbr', { title: 'Идентификационный номер налогоплательщика' }, 'ИНН'), ` ${me.inn}`);
 }
 
 async function loadSchedule(contractId) {
@@ -42,7 +51,7 @@ async function loadContracts() {
   const contracts = await apiJson('/api/me/contracts');
   $('contracts-table').querySelector('tbody').replaceChildren(...contracts.map((c) => el('tr', { testid: `contract-row-${c.contractId}` },
     el('td', {}, c.contractNumber), el('td', {}, c.car), el('td', {}, c.statusText), el('td', {}, formatDate(c.startDate)),
-    el('td', {}, `${c.durationInMonths} мес.`), money(c.monthlyPayment), money(c.remainingDebt),
+    el('td', {}, months(c.durationInMonths)), money(c.monthlyPayment), money(c.remainingDebt),
     el('td', {}, formatDate(c.nextDueDate)))));
   $('contracts-empty').hidden = contracts.length > 0;
   const select = $('schedule-contract-select');

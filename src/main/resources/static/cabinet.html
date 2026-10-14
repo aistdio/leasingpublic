@@ -43,7 +43,7 @@
     <div class="table-wrap">
       <table data-testid="schedule-table">
         <thead><tr><th>№</th><th>Дата платежа</th><th>Сумма</th><th>Выкупная часть</th><th>Удорожание</th>
-          <th>НДС</th><th>Пени</th><th>Статус</th><th>Дата оплаты</th></tr></thead>
+          <th><abbr title="Налог на добавленную стоимость">НДС</abbr></th><th>Пени</th><th>Статус</th><th>Дата оплаты</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -59,7 +59,7 @@
           <option value="">Все</option>
           <option value="PAID">Оплачен</option>
           <option value="UNPAID">Не оплачен</option>
-          <option value="CANCELLED">Отменён</option>
+          <option value="CANCELED">Отменён</option>
         </select>
       </label>
       <button type="button" data-testid="payments-apply">Показать</button>
