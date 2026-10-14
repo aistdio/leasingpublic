@@ -1,0 +1,28 @@
+autolease:
+  app-env: test
+  clock:
+    fixed-date: 2026-10-10
+  seed:
+    enabled: false
+  agent:
+    llm:
+      provider: mock
+
+spring:
+  kafka:
+    bootstrap-servers: localhost:65535
+    listener:
+      auto-startup: false
+    admin:
+      auto-create: false
+  jpa:
+    properties:
+      hibernate:
+        cache:
+          use_second_level_cache: false
+          use_query_cache: false
+      jakarta:
+        persistence:
+          sharedCache:
+            mode: NONE
+
