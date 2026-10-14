@@ -10,6 +10,8 @@ Env: JDK = `C:\Program Files\JetBrains\PyCharm2025.3\jbr` (no system Java); Olla
 ## Done
 - [x] Spec, priorities, agents (dev-fixer, qa-reviewer, course-librarian), skills (/fix-ticket, /release, /checkpoint), CLAUDE.md, course index
 - [x] Setup committed (568aed6); v1.0 plan written (5 stories, 16 tasks)
+- [x] Jira: stories LEAS-5..9, QA tasks LEAS-10..14 (project key LEAS; no Bug type / components yet)
+- [x] LEAS-5 platform merged to develop (e40ac41); stand :8081 up
 
 ## Phases
 - [ ] 1. Setup + v1.0 build (Must)
