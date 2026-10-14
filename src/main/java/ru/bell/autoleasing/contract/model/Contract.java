@@ -16,6 +16,7 @@ import ru.bell.autoleasing.payment.enums.PaymentStatus;
 import ru.bell.autoleasing.payment.model.Payment;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,7 +36,7 @@ public class Contract {
     private Long id;
 
     @OneToMany(mappedBy = "contract")
-    @OrderBy("paymentIdContractId.paymentId")
+    @OrderBy("dueDate ASC, paymentIdContractId.paymentId ASC")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private List<Payment> payments;
 
@@ -62,6 +63,12 @@ public class Contract {
     @Column(name = "status", nullable = false, length = 100)
     @Convert(converter = ContractStatusConverter.class)
     private ContractStatus status;
+
+    @Column(name = "contract_number", length = 30)
+    private String contractNumber;
+
+    @Column(name = "start_date")
+    private LocalDate startDate;
 
     public List<Payment> getPayments() {
         if (payments == null) payments = new ArrayList<>();
@@ -151,7 +158,9 @@ public class Contract {
                 new BigDecimal(p[5]),
                 new BigDecimal(p[6]),
                 payments.isEmpty() ? null : payments.getFirst().getAmount(),
-                ContractStatus.fromString(p[7])
+                ContractStatus.fromString(p[7]),
+                null,
+                null
         );
     }
 

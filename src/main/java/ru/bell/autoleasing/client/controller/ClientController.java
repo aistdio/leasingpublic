@@ -72,7 +72,7 @@ public class ClientController {
     public ResponseEntity<Void> deleteClientById(@PathVariable("id") Long id) {
         log.info("Удаление клиента с paymentId {}", id);
 
-        ClientDto clientDto = new ClientDto(id, null, null, null);
+        ClientDto clientDto = new ClientDto(id, null, null, null, null, null, null);
         ClientMessage clientMessage = new ClientMessage(CrudOperation.DELETE, clientDto);
         producerService.sendMessage(clientMessage);
 
@@ -84,7 +84,7 @@ public class ClientController {
     public ResponseEntity<Void> deleteClientByPassport(@PathVariable("passport") String passport) {
         log.info("Удаление клиента с паспортом {}", passport);
 
-        ClientDto clientDto = new ClientDto(null, null, passport, null);
+        ClientDto clientDto = new ClientDto(null, null, passport, null, null, null, null);
         ClientMessage clientMessage = new ClientMessage(CrudOperation.DELETE, clientDto);
         producerService.sendMessage(clientMessage);
 

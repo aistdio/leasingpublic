@@ -37,8 +37,17 @@ public class ClientServiceImpl implements ClientService {
         Client clientRaw = clientMapper.toEntity(clientDto);
         Client client = validateAndNormalizeClient(clientRaw);
 
-        if (clientRepository.findById(client.getId()).isEmpty()) {
-            throw new DataUpdateException("Клиент с id " + client.getId() + " не был найден.");
+        Client stored = clientRepository.findById(client.getId())
+                .orElseThrow(() -> new DataUpdateException("Клиент с id " + client.getId() + " не был найден."));
+
+        if (client.getClientType() == null) {
+            client.setClientType(stored.getClientType());
+        }
+        if (client.getInn() == null) {
+            client.setInn(stored.getInn());
+        }
+        if (client.getLegalName() == null) {
+            client.setLegalName(stored.getLegalName());
         }
 
         return clientMapper.toDto(clientRepository.save(client));
@@ -111,7 +120,8 @@ public class ClientServiceImpl implements ClientService {
         String passport = DataValidator.validateAndNormalizePassport(clientRaw.getPassport());
         String phone = DataValidator.validateAndNormalizePhone(clientRaw.getPhone());
 
-        return new Client(clientRaw.getId(), name, passport, phone);
+        return new Client(clientRaw.getId(), name, passport, phone,
+                clientRaw.getClientType(), clientRaw.getInn(), clientRaw.getLegalName());
     }
 
     private void validateClientUniqueness(Client client) {

@@ -1,6 +1,7 @@
 package ru.bell.autoleasing.config.security;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
@@ -14,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -63,6 +65,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             log.warn("Неверная JWT подпись");
             filterChain.doFilter(request, response);
             return;
+        } catch (JwtException e) {
+            log.warn("Неподдерживаемый или некорректный JWT: {}", e.getClass().getSimpleName());
+            filterChain.doFilter(request, response);
+            return;
         } catch (IllegalArgumentException e) {
             log.warn("Пустая строка компонентов JWT");
             filterChain.doFilter(request, response);
@@ -70,7 +76,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+            UserDetails userDetails;
+            try {
+                userDetails = this.userDetailsService.loadUserByUsername(username);
+            } catch (UsernameNotFoundException e) {
+                log.warn("Пользователь из JWT не найден: {}", username);
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            if (!userDetails.isEnabled()) {
+                log.warn("Пользователь из JWT отключен: {}", username);
+                filterChain.doFilter(request, response);
+                return;
+            }
 
             if (jwtUtil.isTokenValid(jwt, userDetails)) {
                 log.debug("JWT валиден для пользователя: {}", username);

@@ -7,7 +7,8 @@ import lombok.Getter;
 @Getter
 public enum PaymentStatus {
     PAID("оплачен"),
-    UNPAID("не оплачен");
+    UNPAID("не оплачен"),
+    CANCELLED("отменен");
 
     private final String description;
 

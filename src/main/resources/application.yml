@@ -4,6 +4,12 @@ autolease:
   legacy:
     contract-file-sync:
       enabled: false
+  seed:
+    enabled: ${SEED_ENABLED:true}
+    seed: 20261014
+    as-of: 2026-10-01
+    client-password: Client123!
+    manager-password: Manager123!
 
 kafka:
   topic-names:
@@ -16,11 +22,6 @@ security:
   rate-limit:
     max-attempts: 5
     block-duration-minutes: 1
-  use_jwt: true
-  use_csrf: true
-  admin:
-    username: admin
-    password: 1234
 
 
 jwt:

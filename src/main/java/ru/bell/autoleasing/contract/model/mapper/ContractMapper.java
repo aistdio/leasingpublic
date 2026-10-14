@@ -27,7 +27,9 @@ public class ContractMapper {
                 dto.downPayment(),
                 dto.interestRate(),
                 dto.payments() != null && !dto.payments().isEmpty() ? dto.payments().getFirst().getAmount() : null,
-                dto.status()
+                dto.status(),
+                null,
+                null
         );
     }
 }

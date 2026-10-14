@@ -10,6 +10,8 @@ import lombok.Setter;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
+import ru.bell.autoleasing.client.enums.ClientType;
+import ru.bell.autoleasing.client.enums.ClientTypeConverter;
 
 import java.util.Objects;
 
@@ -39,6 +41,23 @@ public class Client {
     @NotNull
     private String phone;
 
+    @Column(name = "client_type", nullable = false, length = 10)
+    @Convert(converter = ClientTypeConverter.class)
+    private ClientType clientType;
+
+    @Column(name = "inn", length = 12)
+    private String inn;
+
+    @Column(name = "legal_name", length = 300)
+    private String legalName;
+
+    @PrePersist
+    void applyDefaults() {
+        if (clientType == null) {
+            clientType = ClientType.LLC;
+        }
+    }
+
     public String toFileString() {
         return String.join("|", id.toString(), name, passport, phone);
     }
@@ -49,7 +68,7 @@ public class Client {
             throw new IllegalArgumentException("Неверный формат строки для получения сущности: " + line);
         }
 
-        return new Client(Long.parseLong(p[0]), p[1], p[2], p[3]);
+        return new Client(Long.parseLong(p[0]), p[1], p[2], p[3], null, null, null);
     }
 
     @Override

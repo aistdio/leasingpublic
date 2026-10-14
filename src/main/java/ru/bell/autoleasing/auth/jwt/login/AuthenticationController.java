@@ -2,11 +2,13 @@ package ru.bell.autoleasing.auth.jwt.login;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,9 +20,11 @@ import ru.bell.autoleasing.auth.jwt.login.dto.AuthenticationRequest;
 import ru.bell.autoleasing.auth.jwt.login.dto.AuthenticationResponse;
 import ru.bell.autoleasing.config.security.LoginAttemptService;
 import ru.bell.autoleasing.exceptions.DefaultErrorResponse;
+import ru.bell.autoleasing.user.AppUserPrincipal;
 import ru.bell.autoleasing.utilities.ClientIp;
 import ru.bell.autoleasing.utilities.security.JwtUtil;
 
+@Slf4j
 @RestController
 @RequestMapping("api/auth")
 @AllArgsConstructor
@@ -32,6 +36,7 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody AuthenticationRequest request, HttpServletRequest httpRequest) {
+        log.debug("Попытка входа: {}", request);
         String username = request.getUsername();
         String ipAddress = ClientIp.getClientIP(httpRequest);
 
@@ -51,9 +56,11 @@ public class AuthenticationController {
             UserDetails user = userDetailsService.loadUserByUsername(request.getUsername());
             String jwtToken = jwtUtil.generateToken(user);
 
-            return ResponseEntity.ok(new AuthenticationResponse(jwtToken));
+            String role = ((AppUserPrincipal) user).role().name();
 
-        } catch (BadCredentialsException e) {
+            return ResponseEntity.ok(new AuthenticationResponse(jwtToken, role));
+
+        } catch (BadCredentialsException | DisabledException e) {
             int remainingAttemptsForUser = loginAttemptService.getRemainingAttempts(username);
             int remainingAttemptsForIp = loginAttemptService.getRemainingAttempts(ipAddress);
             int remainingAttempts = Math.min(remainingAttemptsForUser, remainingAttemptsForIp);

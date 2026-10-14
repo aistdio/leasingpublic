@@ -17,6 +17,7 @@ import ru.bell.autoleasing.payment.enums.PaymentStatus;
 import ru.bell.autoleasing.payment.enums.PaymentStatusConverter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Objects;
 
 @Entity
@@ -47,6 +48,32 @@ public class Payment {
     @JoinColumn(name = "contract_id", insertable = false, updatable = false)
     @JsonIgnore
     private Contract contract;
+
+    @Column(name = "due_date")
+    private LocalDate dueDate;
+
+    @Column(name = "paid_date")
+    private LocalDate paidDate;
+
+    @Column(name = "principal_part", precision = 20, scale = 2, nullable = false)
+    private BigDecimal principalPart;
+
+    @Column(name = "markup", precision = 20, scale = 2, nullable = false)
+    private BigDecimal markup;
+
+    @Column(name = "vat", precision = 20, scale = 2, nullable = false)
+    private BigDecimal vat;
+
+    @Column(name = "penalty", precision = 20, scale = 2, nullable = false)
+    private BigDecimal penalty;
+
+    @PrePersist
+    void applyDefaults() {
+        if (principalPart == null) principalPart = BigDecimal.ZERO.setScale(2);
+        if (markup == null) markup = BigDecimal.ZERO.setScale(2);
+        if (vat == null) vat = BigDecimal.ZERO.setScale(2);
+        if (penalty == null) penalty = BigDecimal.ZERO.setScale(2);
+    }
 
     @Override
     public String toString() {
@@ -89,6 +116,12 @@ public class Payment {
                 new PaymentIdContractId(id, contractId),
                 new BigDecimal(p[2]),
                 PaymentStatus.fromString(p[3]),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
                 null
         );
     }

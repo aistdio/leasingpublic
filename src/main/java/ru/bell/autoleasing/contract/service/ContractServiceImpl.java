@@ -32,6 +32,8 @@ import ru.bell.autoleasing.utilities.PriorityPair;
 import ru.bell.autoleasing.utilities.validation.DataValidator;
 
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -50,6 +52,7 @@ public class ContractServiceImpl implements ContractService {
     private final ClientService clientService;
     private final ClientMapper clientMapper;
     private final PaymentMapper paymentMapper;
+    private final Clock clock;
 
     @Override
     @Transactional
@@ -57,6 +60,7 @@ public class ContractServiceImpl implements ContractService {
         Contract contractFilled = validateAndFillContract(createContractDto);
 
         Contract contract = jpaContractRepository.save(contractFilled);
+        contract.setContractNumber(String.format("AL-%d-%05d", contract.getStartDate().getYear(), contract.getId()));
 
         try {
             contract.getCar().setStatus(CarStatus.LEASED);
@@ -77,6 +81,7 @@ public class ContractServiceImpl implements ContractService {
     @Transactional
     public ContractDto update(ContractDto contractDto) {
         Contract contract = ContractMapper.toEntity(contractDto);
+        keepStoredContractNumberAndStartDate(contract);
 
         Contract contractSavedToDb = jpaContractRepository.save(contract);
 
@@ -85,6 +90,20 @@ public class ContractServiceImpl implements ContractService {
                         String.format("Не удалось обновить %s", contract)));
 
         return ContractMapper.toDto(contractSavedToDb);
+    }
+
+    private void keepStoredContractNumberAndStartDate(Contract contract) {
+        if (contract.getId() == null) {
+            return;
+        }
+        jpaContractRepository.findById(contract.getId()).ifPresent(stored -> {
+            if (contract.getContractNumber() == null) {
+                contract.setContractNumber(stored.getContractNumber());
+            }
+            if (contract.getStartDate() == null) {
+                contract.setStartDate(stored.getStartDate());
+            }
+        });
     }
 
     @Override
@@ -252,6 +271,9 @@ public class ContractServiceImpl implements ContractService {
             throw new DataCreationException("При создании договора не удалось найти сущность по переданным данным. " + e.getMessage());
         }
 
+        if (createContractDto.downPayment().compareTo(car.getPrice()) >= 0) {
+            throw new ValidationException("Первоначальный взнос должен быть меньше стоимости автомобиля");
+        }
         BigDecimal creditAmount = car.getPrice().subtract(createContractDto.downPayment());
         if (creditAmount.signum() < 0) {
             throw new ValidationException("Сумма кредита не может быть меньше нуля. Cумма кредита: " + creditAmount);
@@ -268,17 +290,22 @@ public class ContractServiceImpl implements ContractService {
                 createContractDto.downPayment(),
                 createContractDto.interestRate(),
                 monthlyPayment,
-                ContractStatus.ACTIVE
+                ContractStatus.ACTIVE,
+                null,
+                LocalDate.now(clock)
         );
     }
 
     private Payment updatePaymentStatus(Contract contract, Payment payment, PaymentStatus paymentStatus) {
         try {
-            contract.getPayments().stream()
+            Payment foundPayment = contract.getPayments().stream()
                     .filter(payment1 -> payment1.equals(payment))
                     .findFirst()
-                    .orElseThrow(() -> new DataUpdateException(String.format("Не удалось обновить статус платежа с ID %s у договора с номером %s. ", payment.getPaymentIdContractId().getPaymentId(), contract.getId())))
-                    .setStatus(paymentStatus);
+                    .orElseThrow(() -> new DataUpdateException(String.format("Не удалось обновить статус платежа с ID %s у договора с номером %s. ", payment.getPaymentIdContractId().getPaymentId(), contract.getId())));
+            foundPayment.setStatus(paymentStatus);
+            if (paymentStatus == PaymentStatus.PAID) {
+                foundPayment.setPaidDate(LocalDate.now(clock));
+            }
 
             if (Contract.determineStatus(contract.getPayments()).equals(ContractStatus.CLOSED)) {
                 this.closeContractInternal(contract);
