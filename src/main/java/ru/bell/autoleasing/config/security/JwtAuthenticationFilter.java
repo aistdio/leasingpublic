@@ -1,6 +1,7 @@
 package ru.bell.autoleasing.config.security;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
@@ -64,6 +65,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             log.warn("Неверная JWT подпись");
             filterChain.doFilter(request, response);
             return;
+        } catch (JwtException e) {
+            log.warn("Неподдерживаемый или некорректный JWT: {}", e.getClass().getSimpleName());
+            filterChain.doFilter(request, response);
+            return;
         } catch (IllegalArgumentException e) {
             log.warn("Пустая строка компонентов JWT");
             filterChain.doFilter(request, response);
@@ -76,6 +81,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 userDetails = this.userDetailsService.loadUserByUsername(username);
             } catch (UsernameNotFoundException e) {
                 log.warn("Пользователь из JWT не найден: {}", username);
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            if (!userDetails.isEnabled()) {
+                log.warn("Пользователь из JWT отключен: {}", username);
                 filterChain.doFilter(request, response);
                 return;
             }

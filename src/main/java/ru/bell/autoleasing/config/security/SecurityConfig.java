@@ -32,6 +32,7 @@ public class SecurityConfig {
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/api/public/**").permitAll()
+                        .requestMatchers("/api/contracts/client/**").hasAnyRole("CLIENT", "MANAGER")
                         .requestMatchers("/api/me/**", "/api/agent/ask").hasRole("CLIENT")
                         .anyRequest().hasRole("MANAGER"))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -1,6 +1,7 @@
 package ru.bell.autoleasing.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -31,6 +32,12 @@ class AuthenticationFlowTest {
         user.setPasswordHash(encoder.encode(password));
         user.setRole(UserRole.MANAGER);
         user.setEnabled(true);
+        users.save(user);
+    }
+
+    private void disable(String username) {
+        AppUser user = users.findByUsername(username).orElseThrow();
+        user.setEnabled(false);
         users.save(user);
     }
 
@@ -84,6 +91,32 @@ class AuthenticationFlowTest {
         createManager("manager_d", "Secret123!");
         String token = login("manager_d", "Secret123!");
         users.deleteAll();
+        mockMvc.perform(get("/api/clients").header("Authorization", "Bearer " + token))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void unsignedTokenIsUnauthorized() throws Exception {
+        createManager("manager_u", "Secret123!");
+        String unsignedToken = Jwts.builder().subject("manager_u").compact();
+        mockMvc.perform(get("/api/clients").header("Authorization", "Bearer " + unsignedToken))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void disabledUserCannotLogIn() throws Exception {
+        createManager("manager_x", "Secret123!");
+        disable("manager_x");
+        mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"manager_x\",\"password\":\"Secret123!\"}"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void tokenOfUserDisabledAfterLoginIsUnauthorized() throws Exception {
+        createManager("manager_e", "Secret123!");
+        String token = login("manager_e", "Secret123!");
+        disable("manager_e");
         mockMvc.perform(get("/api/clients").header("Authorization", "Bearer " + token))
                 .andExpect(status().isUnauthorized());
     }
