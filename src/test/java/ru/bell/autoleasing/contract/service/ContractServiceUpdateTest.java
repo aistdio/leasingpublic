@@ -37,7 +37,7 @@ class ContractServiceUpdateTest {
         jpaContractRepository = mock(JpaContractRepository.class);
         inFileContractRepository = mock(InFileContractRepository.class);
         service = new ContractServiceImpl(inFileContractRepository, jpaContractRepository,
-                null, null, null, null, null);
+                null, null, null, null, null, null);
         when(jpaContractRepository.save(any(Contract.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(inFileContractRepository.update(any(Contract.class))).thenAnswer(invocation -> Optional.of(invocation.getArgument(0)));
     }

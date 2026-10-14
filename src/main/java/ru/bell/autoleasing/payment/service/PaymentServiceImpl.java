@@ -14,11 +14,12 @@ import ru.bell.autoleasing.payment.model.PaymentIdContractId;
 import ru.bell.autoleasing.payment.model.dto.PaymentDto;
 import ru.bell.autoleasing.payment.model.mapper.PaymentMapper;
 import ru.bell.autoleasing.payment.repository.PaymentRepository;
+import ru.bell.autoleasing.schedule.PaymentScheduleCalculator;
+import ru.bell.autoleasing.schedule.ScheduledPayment;
 import ru.bell.autoleasing.utilities.AnnuityUtilities;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -60,26 +61,25 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public List<Payment> createPaymentsForContract(Contract contract) {
-        BigDecimal annuityPayment = AnnuityUtilities.calculateMonthlyAnnuityWithCar(
-                contract.getCar(),
-                contract.getDownPayment(),
-                contract.getInterestRate(),
-                contract.getDurationInMonths()
-        );
-
-        List<Payment> createdPayments = new ArrayList<>(contract.getDurationInMonths());
-        for (int i = 0; i < contract.getDurationInMonths(); i++) {
-            PaymentDto savedDtoList = this.save(
-                    new PaymentDto(
-                            new PaymentIdContractId(null, contract.getId()),
-                            annuityPayment,
-                            PaymentStatus.UNPAID
-                    )
-            );
-            createdPayments.add(paymentMapper.toEntity(savedDtoList));
+        BigDecimal financed = AnnuityUtilities.getCreditAmount(contract.getCar(), contract.getDownPayment());
+        List<ScheduledPayment> schedule = PaymentScheduleCalculator.calculate(
+                financed, contract.getInterestRate(), contract.getDurationInMonths(), contract.getStartDate());
+        List<Payment> created = new ArrayList<>(schedule.size());
+        for (ScheduledPayment scheduled : schedule) {
+            Payment payment = new Payment();
+            payment.setPaymentIdContractId(new PaymentIdContractId((long) scheduled.number(), contract.getId()));
+            payment.setDueDate(scheduled.dueDate());
+            payment.setAmount(scheduled.amount());
+            payment.setPrincipalPart(scheduled.principalPart());
+            payment.setMarkup(scheduled.markup());
+            payment.setVat(scheduled.vat());
+            payment.setPenalty(BigDecimal.ZERO.setScale(2));
+            payment.setStatus(PaymentStatus.UNPAID);
+            payment.setContract(contract);
+            paymentRepository.insert(payment);
+            created.add(payment);
         }
-
-        return Collections.unmodifiableList(createdPayments);
+        return created;
     }
 
     @Override
