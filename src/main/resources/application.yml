@@ -4,6 +4,12 @@ autolease:
   legacy:
     contract-file-sync:
       enabled: false
+  seed:
+    enabled: ${SEED_ENABLED:true}
+    seed: 20261014
+    as-of: 2026-10-01
+    client-password: Client123!
+    manager-password: Manager123!
 
 kafka:
   topic-names:
