@@ -1,6 +1,7 @@
-const CACHE = 'autolease-shell-v1';
+const CACHE = 'autolease-shell-v2';
 const SHELL = ['/', '/index.html', '/cabinet.html', '/css/app.css', '/js/api.js', '/js/login.js',
-  '/js/cabinet.js', '/js/env-badge.js', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png'];
+  '/js/cabinet.js', '/js/env-badge.js', '/js/chat.js', '/traces.html', '/js/traces.js', '/manifest.json',
+  '/icons/icon-192.png', '/icons/icon-512.png'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting()));

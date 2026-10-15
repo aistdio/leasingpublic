@@ -21,7 +21,7 @@ class StaticUiTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"/index.html", "/cabinet.html", "/css/app.css", "/js/api.js", "/js/login.js",
-            "/js/cabinet.js", "/js/env-badge.js", "/manifest.json", "/sw.js", "/icons/icon-192.png", "/icons/icon-512.png"})
+            "/js/cabinet.js", "/js/env-badge.js", "/traces.html", "/js/chat.js", "/js/traces.js", "/manifest.json", "/sw.js", "/icons/icon-192.png", "/icons/icon-512.png"})
     void staticFilesArePublic(String path) throws Exception {
         mockMvc.perform(get(path)).andExpect(status().isOk());
     }
@@ -45,6 +45,19 @@ class StaticUiTest {
         }
         org.assertj.core.api.Assertions.assertThat(html)
                 .contains("<abbr title=\"Налог на добавленную стоимость\">");
+    }
+
+    @Test
+    void chatAndTracePagesHaveTestIds() throws Exception {
+        String cabinet = mockMvc.perform(get("/cabinet.html")).andReturn().getResponse().getContentAsString();
+        for (String id : new String[]{"tab-assistant", "chat-suggestion", "chat-messages", "chat-form", "chat-input", "chat-send"}) {
+            org.assertj.core.api.Assertions.assertThat(cabinet).contains("data-testid=\"" + id + "\"");
+        }
+        String traces = mockMvc.perform(get("/traces.html")).andReturn().getResponse().getContentAsString();
+        for (String id : new String[]{"logout-button", "env-badge", "traces-table", "traces-refresh", "trace-id-input",
+                "trace-open", "trace-detail", "trace-summary", "trace-steps", "trace-answer", "traces-error"}) {
+            org.assertj.core.api.Assertions.assertThat(traces).contains("data-testid=\"" + id + "\"");
+        }
     }
 
     @Test
