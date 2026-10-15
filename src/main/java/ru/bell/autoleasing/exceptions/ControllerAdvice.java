@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import ru.bell.autoleasing.agent.api.AgentErrorResponse;
+import ru.bell.autoleasing.agent.core.AgentUnavailableException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -116,6 +118,12 @@ public class ControllerAdvice {
     public ResponseEntity<DefaultErrorResponse> handleMissingParameter(MissingServletRequestParameterException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new DefaultErrorResponse("Не указан обязательный параметр " + e.getParameterName()));
+    }
+
+    @ExceptionHandler(AgentUnavailableException.class)
+    public ResponseEntity<AgentErrorResponse> handleAgentUnavailable(AgentUnavailableException e) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(new AgentErrorResponse(e.getMessage(), e.getTraceId().toString()));
     }
 
     @ExceptionHandler(DataCreationException.class)

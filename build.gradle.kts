@@ -33,6 +33,7 @@ dependencies {
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("org.springframework:spring-aspects")
     implementation("org.springframework.retry:spring-retry")
+    implementation("com.networknt:json-schema-validator:1.5.8")
     implementation("commons-validator:commons-validator:1.10.0")
     implementation("com.google.guava:guava:33.5.0-jre")
     implementation("org.jetbrains:annotations:26.0.2-1")
