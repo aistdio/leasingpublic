@@ -9,6 +9,7 @@ import ru.bell.autoleasing.agent.api.AgentAnswer;
 import ru.bell.autoleasing.agent.llm.*;
 import ru.bell.autoleasing.agent.router.ToolRouter;
 import ru.bell.autoleasing.agent.tool.AgentTool;
+import ru.bell.autoleasing.agent.tool.ToolArgumentException;
 import ru.bell.autoleasing.agent.tool.ToolRegistry;
 import ru.bell.autoleasing.agent.tool.ToolSpec;
 import ru.bell.autoleasing.agent.trace.StepType;
@@ -127,6 +128,54 @@ class AgentOrchestratorTest {
         verify(llm, times(5)).chat(any());
         assertThat(answer.warnings()).containsExactly(AgentOrchestrator.MAX_STEPS_WARNING);
         verify(traces).finish(any(), eq(TraceStatus.MAX_STEPS), anyString(), anyString(), anyInt(), anyInt(), anyLong(), anyString());
+    }
+
+    @Test
+    void unexpectedFailureFinishesTraceWithErrorAndRethrows() {
+        when(llm.chat(any())).thenReturn(toolCall("schedule", Map.of()));
+        when(scheduleTool.execute(any(), any())).thenThrow(new IllegalStateException("boom"));
+
+        assertThatThrownBy(() -> orchestrator.ask(TestPrincipals.client(1001), "Когда следующий платёж?"))
+                .isInstanceOf(IllegalStateException.class).hasMessage("boom");
+
+        verify(traces, times(1)).finish(any(), any(), any(), any(), anyInt(), anyInt(), anyLong(), any());
+        verify(traces).finish(any(), eq(TraceStatus.ERROR), eq("SCHEDULE"), isNull(), anyInt(), anyInt(), anyLong(), eq("boom"));
+    }
+
+    @Test
+    void unexpectedFailureWithoutMessageUsesClassNameAsError() {
+        when(llm.chat(any())).thenThrow(new IllegalStateException());
+
+        assertThatThrownBy(() -> orchestrator.ask(TestPrincipals.client(1001), "Когда следующий платёж?"))
+                .isInstanceOf(IllegalStateException.class);
+
+        verify(traces).finish(any(), eq(TraceStatus.ERROR), anyString(), isNull(), anyInt(), anyInt(), anyLong(),
+                eq(IllegalStateException.class.getName()));
+    }
+
+    @Test
+    void failureToFinishTraceDoesNotHideTheOriginalException() {
+        when(llm.chat(any())).thenThrow(new IllegalStateException("boom"));
+        doThrow(new IllegalStateException("database is down")).when(traces)
+                .finish(any(), eq(TraceStatus.ERROR), any(), any(), anyInt(), anyInt(), anyLong(), any());
+
+        assertThatThrownBy(() -> orchestrator.ask(TestPrincipals.client(1001), "Когда следующий платёж?"))
+                .isInstanceOf(IllegalStateException.class).hasMessage("boom")
+                .satisfies(e -> assertThat(e.getSuppressed()).hasSize(1));
+    }
+
+    @Test
+    void toolFailureWithoutMessageDoesNotBreakTheRun() {
+        when(llm.chat(any())).thenReturn(toolCall("schedule", Map.of()), text(FINAL));
+        when(scheduleTool.execute(any(), any())).thenThrow(new ToolArgumentException(null));
+
+        AgentAnswer answer = orchestrator.ask(TestPrincipals.client(1001), "Когда следующий платёж?");
+
+        assertThat(answer.warnings()).isEmpty();
+        assertThat(answer.toolsUsed()).isEmpty();
+        verify(traces).step(any(), eq(3), eq(StepType.TOOL_CALL), eq("schedule"), anyString(), anyString(),
+                eq(ToolArgumentException.class.getName()), anyLong(), eq(0), eq(0));
+        verify(traces).finish(any(), eq(TraceStatus.OK), eq("SCHEDULE"), anyString(), anyInt(), anyInt(), anyLong(), isNull());
     }
 
     @Test

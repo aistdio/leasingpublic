@@ -6,6 +6,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -118,6 +119,12 @@ public class ControllerAdvice {
     public ResponseEntity<DefaultErrorResponse> handleMissingParameter(MissingServletRequestParameterException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new DefaultErrorResponse("Не указан обязательный параметр " + e.getParameterName()));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<DefaultErrorResponse> handleUnreadableBody(HttpMessageNotReadableException e) {
+        log.warn("Тело запроса не удалось прочитать: {}", e.getMessage());
+        return ResponseEntity.badRequest().body(new DefaultErrorResponse("Тело запроса отсутствует или имеет неверный формат."));
     }
 
     @ExceptionHandler(AgentUnavailableException.class)

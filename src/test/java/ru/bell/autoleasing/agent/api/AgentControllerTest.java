@@ -68,6 +68,34 @@ class AgentControllerTest {
     }
 
     @Test
+    void unreadableRequestBodiesAreBadRequest() throws Exception {
+        String[] bodies = {"{\"question\":", "not json", "{\"question\":{\"text\":\"x\"}}", "{\"question\":[\"x\"]}", "[]"};
+        for (String body : bodies) {
+            mockMvc.perform(post("/api/agent/ask").with(user(TestPrincipals.client(1001)))
+                            .contentType(MediaType.APPLICATION_JSON).content(body))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.message").value("Тело запроса отсутствует или имеет неверный формат."));
+        }
+    }
+
+    @Test
+    void missingRequestBodyIsBadRequest() throws Exception {
+        mockMvc.perform(post("/api/agent/ask").with(user(TestPrincipals.client(1001)))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Тело запроса отсутствует или имеет неверный формат."));
+    }
+
+    @Test
+    void emptyObjectAndNullQuestionAreBadRequest() throws Exception {
+        for (String body : new String[]{"{}", "{\"question\":null}"}) {
+            mockMvc.perform(post("/api/agent/ask").with(user(TestPrincipals.client(1001)))
+                            .contentType(MediaType.APPLICATION_JSON).content(body))
+                    .andExpect(status().isBadRequest());
+        }
+    }
+
+    @Test
     void managerCannotAsk() throws Exception {
         mockMvc.perform(post("/api/agent/ask").with(user(TestPrincipals.manager()))
                         .contentType(MediaType.APPLICATION_JSON).content("{\"question\":\"Когда платить?\"}"))

@@ -42,4 +42,19 @@ class AgentUnavailableEndpointTest {
 
         assertThat(jdbc.queryForObject("SELECT status FROM autoleasing_agent.traces", String.class)).isEqualTo("LLM_ERROR");
     }
+
+    @Test
+    void unexpectedFailureLeavesTraceWithErrorStatus() throws Exception {
+        when(llm.provider()).thenReturn("mock");
+        when(llm.model()).thenReturn("mock-1");
+        when(llm.chat(any())).thenThrow(new IllegalStateException("boom"));
+
+        mockMvc.perform(post("/api/agent/ask").with(user(TestPrincipals.client(1001)))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"question\":\"Когда следующий платёж?\"}"))
+                .andExpect(status().isInternalServerError());
+
+        assertThat(jdbc.queryForObject("SELECT status FROM autoleasing_agent.traces", String.class)).isEqualTo("ERROR");
+        assertThat(jdbc.queryForObject("SELECT error FROM autoleasing_agent.traces", String.class)).isEqualTo("boom");
+        assertThat(jdbc.queryForObject("SELECT finished_at IS NOT NULL FROM autoleasing_agent.traces", Boolean.class)).isTrue();
+    }
 }

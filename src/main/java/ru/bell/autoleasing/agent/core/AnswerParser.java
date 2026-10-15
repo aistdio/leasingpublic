@@ -72,7 +72,7 @@ public class AnswerParser {
     }
 
     private Result invalid(UUID traceId, List<String> toolsUsed, String error) {
-        return new Result(new AgentAnswer(FALLBACK_TEXT, List.of(), List.copyOf(toolsUsed), traceId.toString(),
+        return new Result(new AgentAnswer(FALLBACK_TEXT, List.of(), List.copyOf(toolsUsed), null,
                 List.of(INVALID_OUTPUT_WARNING)), false, error);
     }
 }

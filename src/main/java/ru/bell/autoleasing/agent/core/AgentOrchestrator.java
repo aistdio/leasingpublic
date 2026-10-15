@@ -67,19 +67,19 @@ public class AgentOrchestrator {
         long started = System.nanoTime();
         LocalDate today = LocalDate.now(clock);
         ToolContext context = new ToolContext(user.clientId(), today);
+        RoutingDecision decision = router.route(q);
         traces.start(traceId, user.clientId(), user.username(), q, llm.provider(), llm.model(), systemPrompt.version(),
                 MDC.get(RequestIdFilter.MDC_KEY), appEnv);
 
-        RoutingDecision decision = router.route(q);
         int stepNo = 0;
-        traces.step(traceId, ++stepNo, StepType.ROUTING, null, json(decision.allowedTools()), decision.rule(), null, 0, 0, 0);
-
-        List<LlmMessage> messages = new ArrayList<>(List.of(LlmMessage.system(systemPrompt.render(today)), LlmMessage.user(q)));
-        List<ToolSpec> specs = tools.specs(decision.allowedTools());
         Set<String> toolsUsed = new LinkedHashSet<>();
         int promptTokens = 0;
         int completionTokens = 0;
         try {
+            traces.step(traceId, ++stepNo, StepType.ROUTING, null, json(decision.allowedTools()), decision.rule(), null, 0, 0, 0);
+
+            List<LlmMessage> messages = new ArrayList<>(List.of(LlmMessage.system(systemPrompt.render(today)), LlmMessage.user(q)));
+            List<ToolSpec> specs = tools.specs(decision.allowedTools());
             for (int i = 0; i < properties.maxSteps(); i++) {
                 long callStarted = System.nanoTime();
                 LlmResponse response = llm.chat(new LlmRequest(List.copyOf(messages), specs));
@@ -110,8 +110,8 @@ public class AgentOrchestrator {
                             resultJson = json(tool.get().execute(call.arguments(), context));
                             toolsUsed.add(call.name());
                         } catch (ToolArgumentException | NotFoundException | ValidationException e) {
-                            error = e.getMessage();
-                            resultJson = json(Map.of("error", e.getMessage()));
+                            error = describe(e);
+                            resultJson = json(Map.of("error", error));
                         }
                     }
                     traces.step(traceId, ++stepNo, StepType.TOOL_CALL, call.name(), json(call.arguments()), resultJson,
@@ -129,7 +129,25 @@ public class AgentOrchestrator {
             traces.finish(traceId, TraceStatus.LLM_ERROR, decision.rule(), null, promptTokens, completionTokens,
                     millisSince(started), e.getMessage());
             throw new AgentUnavailableException(traceId, e);
+        } catch (RuntimeException e) {
+            log.error("Непредвиденная ошибка ассистента, трассировка {}: {}", traceId, e.getMessage(), e);
+            finishWithError(traceId, decision.rule(), promptTokens, completionTokens, millisSince(started), e);
+            throw e;
         }
+    }
+
+    private void finishWithError(UUID traceId, String routingRule, int promptTokens, int completionTokens, long latencyMs,
+                                 RuntimeException cause) {
+        try {
+            traces.finish(traceId, TraceStatus.ERROR, routingRule, null, promptTokens, completionTokens, latencyMs, describe(cause));
+        } catch (RuntimeException failure) {
+            cause.addSuppressed(failure);
+        }
+    }
+
+    private static String describe(Throwable e) {
+        String message = e.getMessage();
+        return message == null || message.isBlank() ? e.getClass().getName() : message;
     }
 
     private String json(Object value) {
