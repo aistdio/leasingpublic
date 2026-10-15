@@ -1,6 +1,7 @@
 package ru.bell.autoleasing.agent.llm;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ru.bell.autoleasing.agent.tool.ContractsOverviewTool;
@@ -8,6 +9,7 @@ import ru.bell.autoleasing.agent.tool.PaymentsSummaryTool;
 import ru.bell.autoleasing.agent.tool.ScheduleTool;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -109,7 +111,7 @@ public class MockLlmClient implements LlmClient {
         }
         String answer = figures.isEmpty()
                 ? "Не удалось найти данные по вашему вопросу."
-                : "По вашим данным: " + figures.stream().map(f -> f.get("label") + " — " + f.get("value") + " руб.")
+                : "По вашим данным: " + figures.stream().map(f -> f.get("label") + " — " + ((BigDecimal) f.get("value")).toPlainString() + " руб.")
                 .collect(Collectors.joining("; ")) + ".";
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("answer", answer);
@@ -125,7 +127,7 @@ public class MockLlmClient implements LlmClient {
     private Map<String, Object> figure(String label, BigDecimal value, String period) {
         Map<String, Object> figure = new LinkedHashMap<>();
         figure.put("label", label);
-        figure.put("value", value);
+        figure.put("value", value == null ? null : value.setScale(2, RoundingMode.HALF_UP));
         figure.put("unit", "RUB");
         figure.put("period", period);
         return figure;
@@ -133,7 +135,8 @@ public class MockLlmClient implements LlmClient {
 
     private JsonNode read(String json) {
         try {
-            return mapper.readTree(json == null ? "{}" : json);
+            return mapper.reader().with(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+                    .readTree(json == null ? "{}" : json);
         } catch (JsonProcessingException e) {
             return mapper.createObjectNode().put("error", "invalid tool result");
         }

@@ -1,7 +1,10 @@
 package ru.bell.autoleasing.agent.llm;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.Test;
 import ru.bell.autoleasing.agent.tool.ToolSpec;
@@ -16,6 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MockLlmClientTest {
     private final Clock clock = Clock.fixed(Instant.parse("2026-10-10T09:00:00Z"), ZoneId.of("Europe/Moscow"));
     private final ObjectMapper mapper = JsonMapper.builder().findAndAddModules().build();
+    private final ObjectReader exactReader = mapper.reader().with(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+            .without(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES);
     private final MockLlmClient client = new MockLlmClient(clock, mapper);
     private final List<ToolSpec> paymentsTool = List.of(ToolSpec.of("payments_summary", "d", List.of()));
 
@@ -47,10 +52,26 @@ class MockLlmClientTest {
         LlmResponse r = client.chat(request);
 
         assertThat(r.hasToolCalls()).isFalse();
-        JsonNode answer = mapper.readTree(r.content());
+        assertThat(r.content()).contains("\"value\":20030.00").contains("20030.00 руб.");
+        JsonNode answer = exactReader.readTree(r.content());
         assertThat(answer.path("figures").get(0).path("label").asText()).isEqualTo("Оплачено");
-        assertThat(answer.path("figures").get(0).path("value").decimalValue()).isEqualByComparingTo("20030.00");
+        assertThat(answer.path("figures").get(0).path("value").decimalValue().toPlainString()).isEqualTo("20030.00");
+        assertThat(answer.path("answer").asText()).contains("20030.00 руб.");
         assertThat(answer.path("warnings").isArray()).isTrue();
         assertThat(client.chat(request).content()).isEqualTo(r.content());
+    }
+
+    @Test
+    void largeRoundAmountKeepsTwoDecimalPlacesWithoutExponent() throws Exception {
+        LlmRequest request = new LlmRequest(List.of(LlmMessage.user("Какой у меня остаток долга?"),
+                LlmMessage.assistant("", List.of(new LlmToolCall("contracts_overview", java.util.Map.of()))),
+                LlmMessage.tool("contracts_overview", "{\"contracts\":[],\"totalRemainingDebt\":12000000.00}")),
+                List.of(ToolSpec.of("contracts_overview", "d", List.of())));
+
+        JsonNode answer = exactReader.readTree(client.chat(request).content());
+
+        assertThat(answer.path("figures").get(0).path("label").asText()).isEqualTo("Остаток долга");
+        assertThat(answer.path("figures").get(0).path("value").decimalValue().toPlainString()).isEqualTo("12000000.00");
+        assertThat(answer.path("answer").asText()).contains("12000000.00 руб.");
     }
 }
