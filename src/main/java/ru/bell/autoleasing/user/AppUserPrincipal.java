@@ -34,4 +34,10 @@ public record AppUserPrincipal(Long id, String username, String passwordHash, Us
     public boolean isEnabled() {
         return enabled;
     }
+
+    @Override
+    public String toString() {
+        return "AppUserPrincipal[id=" + id + ", username=" + username + ", passwordHash=[PROTECTED], role=" + role
+                + ", clientId=" + clientId + ", enabled=" + enabled + "]";
+    }
 }

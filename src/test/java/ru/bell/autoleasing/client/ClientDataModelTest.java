@@ -8,6 +8,7 @@ import org.springframework.test.context.jdbc.Sql;
 import ru.bell.autoleasing.client.enums.ClientType;
 import ru.bell.autoleasing.client.model.Client;
 import ru.bell.autoleasing.client.repository.ClientRepository;
+import ru.bell.autoleasing.client.service.ClientService;
 import ru.bell.autoleasing.payment.enums.PaymentStatus;
 import ru.bell.autoleasing.support.IntegrationTest;
 
@@ -20,6 +21,9 @@ class ClientDataModelTest {
 
     @Autowired
     ClientRepository clientRepository;
+
+    @Autowired
+    ClientService clientService;
 
     @Autowired
     JdbcTemplate jdbc;
@@ -66,5 +70,20 @@ class ClientDataModelTest {
         assertThatThrownBy(() -> jdbc.update(
                 "INSERT INTO autoleasing_core.app_users (username, password_hash, role) VALUES ('nobody', 'x', 'CLIENT')"))
                 .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @Test
+    void deletingClientAlsoDeletesItsLogin() {
+        Client client = new Client();
+        client.setName("Орлов Виктор Сергеевич");
+        client.setPassport("4510000005");
+        client.setPhone("+79000000005");
+        Long id = clientRepository.save(client).getId();
+        jdbc.update("INSERT INTO autoleasing_core.app_users (username, password_hash, role, client_id) VALUES ('client_login', 'x', 'CLIENT', ?)", id);
+
+        clientService.deleteById(id);
+
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM autoleasing_core.clients WHERE id = ?", Integer.class, id)).isZero();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM autoleasing_core.app_users WHERE username = 'client_login'", Integer.class)).isZero();
     }
 }
