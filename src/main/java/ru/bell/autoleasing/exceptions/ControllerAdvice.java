@@ -6,6 +6,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import ru.bell.autoleasing.agent.api.AgentErrorResponse;
+import ru.bell.autoleasing.agent.core.AgentUnavailableException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -116,6 +119,18 @@ public class ControllerAdvice {
     public ResponseEntity<DefaultErrorResponse> handleMissingParameter(MissingServletRequestParameterException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new DefaultErrorResponse("Не указан обязательный параметр " + e.getParameterName()));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<DefaultErrorResponse> handleUnreadableBody(HttpMessageNotReadableException e) {
+        log.warn("Тело запроса не удалось прочитать: {}", e.getMessage());
+        return ResponseEntity.badRequest().body(new DefaultErrorResponse("Тело запроса отсутствует или имеет неверный формат."));
+    }
+
+    @ExceptionHandler(AgentUnavailableException.class)
+    public ResponseEntity<AgentErrorResponse> handleAgentUnavailable(AgentUnavailableException e) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(new AgentErrorResponse(e.getMessage(), e.getTraceId().toString()));
     }
 
     @ExceptionHandler(DataCreationException.class)

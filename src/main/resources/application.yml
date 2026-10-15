@@ -10,6 +10,17 @@ autolease:
     as-of: 2026-10-01
     client-password: Client123!
     manager-password: Manager123!
+  agent:
+    max-steps: 5
+    question-max-length: 1000
+    prompt-version: v1
+    llm:
+      provider: ${AGENT_LLM_PROVIDER:ollama}
+      model: "${AGENT_LLM_MODEL:qwen3:8b}"
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      num-ctx: 8192
+      temperature: 0.0
+      timeout-seconds: 120
 
 kafka:
   topic-names:
