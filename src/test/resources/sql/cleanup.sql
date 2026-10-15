@@ -3,3 +3,4 @@ TRUNCATE autoleasing_core.app_users, autoleasing_core.payments, autoleasing_core
 TRUNCATE autoleasing_core_history.payments_aud, autoleasing_core_history.contracts_aud,
          autoleasing_core_history.clients_aud, autoleasing_core_history.cars_aud,
          autoleasing_core_history.revinfo CASCADE;
+TRUNCATE autoleasing_agent.trace_steps, autoleasing_agent.traces;
