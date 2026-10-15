@@ -16,7 +16,7 @@ export function getRole() {
 }
 
 export function homeFor(role) {
-  return role === 'MANAGER' ? '/swagger-ui.html' : '/cabinet.html';
+  return role === 'MANAGER' ? '/traces.html' : '/cabinet.html';
 }
 
 export function requireRole(role) {

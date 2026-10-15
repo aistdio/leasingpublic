@@ -1,5 +1,6 @@
 import { apiJson, requireRole, logout, formatMoney, formatDate, el, registerServiceWorker } from './api.js';
 import './env-badge.js';
+import './chat.js';
 
 requireRole('CLIENT');
 registerServiceWorker();

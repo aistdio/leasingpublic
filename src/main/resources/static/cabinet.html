@@ -21,6 +21,7 @@
   <button type="button" data-tab="contracts" data-testid="tab-contracts">Договоры</button>
   <button type="button" data-tab="schedule" data-testid="tab-schedule">График</button>
   <button type="button" data-tab="payments" data-testid="tab-payments">Платежи</button>
+  <button type="button" data-tab="assistant" data-testid="tab-assistant">Ассистент</button>
 </nav>
 <main>
   <p class="error" data-testid="cabinet-error" hidden></p>
@@ -72,6 +73,19 @@
         <tbody></tbody>
       </table>
     </div>
+  </section>
+  <section data-panel="assistant" hidden>
+    <h2>Лизинговый ассистент</h2>
+    <div class="suggestions">
+      <button type="button" class="chip" data-testid="chat-suggestion">Сколько я заплатил в прошлом месяце?</button>
+      <button type="button" class="chip" data-testid="chat-suggestion">Когда следующий платёж?</button>
+      <button type="button" class="chip" data-testid="chat-suggestion">Какой остаток долга по договорам?</button>
+    </div>
+    <div class="chat" data-testid="chat-messages" aria-live="polite"></div>
+    <form class="chat-form" data-testid="chat-form">
+      <textarea rows="2" maxlength="1000" placeholder="Задайте вопрос о договорах и платежах" data-testid="chat-input"></textarea>
+      <button type="submit" data-testid="chat-send">Отправить</button>
+    </form>
   </section>
 </main>
 </body>

@@ -26,3 +26,28 @@ tr.overdue td, td.overdue { color: var(--danger); }
 .notice { color: var(--warn); }
 .empty, .summary { color: var(--muted); }
 @media (min-width: 768px) { .login { padding-top: 48px; } }
+.suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.chip { background: #e8eef5; color: var(--brand); border-radius: 16px; padding: 6px 12px; }
+.chat { display: flex; flex-direction: column; gap: 10px; max-height: 60vh; overflow-y: auto; padding: 8px 0; }
+.bubble { max-width: 85%; padding: 8px 12px; border-radius: 12px; background: #fff; }
+.bubble.user { align-self: flex-end; background: var(--brand); color: #fff; }
+.bubble.pending { color: var(--muted); font-style: italic; }
+.card { background: #fff; border-radius: 10px; padding: 12px; box-shadow: 0 1px 2px rgba(0, 0, 0, .08); max-width: 100%; }
+.card.error { border-left: 4px solid var(--danger); }
+.figures { margin: 8px 0; padding-left: 18px; }
+.badge { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 10px; margin-right: 6px; }
+.badge.warn { background: #fef0c7; color: var(--warn); }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 12px; color: var(--muted); margin-top: 6px; word-break: break-all; }
+.raw-json { background: #0f172a; color: #e2e8f0; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: 12px; white-space: pre-wrap; word-break: break-word; }
+.chat-form { display: flex; gap: 8px; margin-top: 12px; }
+.chat-form textarea { flex: 1; min-width: 0; resize: vertical; }
+.summary-grid { display: grid; grid-template-columns: minmax(120px, max-content) 1fr; gap: 4px 12px; }
+.summary-grid dt { color: var(--muted); }
+.summary-grid dd { margin: 0; word-break: break-word; }
+td.wrap { white-space: pre-wrap; word-break: break-word; max-width: 360px; }
+.mono { font-family: ui-monospace, Consolas, monospace; font-size: 12px; }
+tr.clickable { cursor: pointer; }
+tr.clickable:hover { background: #f0f4f8; }
+.status-ok { color: var(--ok); }
+.status-invalid_output, .status-max_steps, .status-llm_error { color: var(--danger); }
+.card .link { color: var(--brand); }

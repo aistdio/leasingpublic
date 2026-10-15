@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1f4e79">
+  <title>AutoLease — трассировки ассистента</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/css/app.css">
+  <script type="module" src="/js/traces.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <span class="brand">AutoLease · менеджер</span>
+  <span class="client-name"></span>
+  <span class="env-badge" data-testid="env-badge"></span>
+  <button type="button" class="link" data-testid="logout-button">Выйти</button>
+</header>
+<main>
+  <p class="error" data-testid="traces-error" hidden></p>
+  <div class="filters">
+    <label>Идентификатор трассировки <input data-testid="trace-id-input" size="38"></label>
+    <button type="button" data-testid="trace-open">Открыть</button>
+    <button type="button" data-testid="traces-refresh">Обновить список</button>
+  </div>
+  <section data-testid="trace-detail" hidden>
+    <h2>Трассировка</h2>
+    <dl class="summary-grid" data-testid="trace-summary"></dl>
+    <div class="table-wrap">
+      <table data-testid="trace-steps">
+        <thead><tr><th>№</th><th>Тип</th><th>Инструмент</th><th>Аргументы</th><th>Результат</th><th>Ошибка</th>
+          <th>Время, миллисекунды</th><th>Токены</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <h3>Ответ</h3>
+    <pre class="raw-json" data-testid="trace-answer"></pre>
+  </section>
+  <h2>Последние вопросы</h2>
+  <div class="table-wrap">
+    <table data-testid="traces-table">
+      <thead><tr><th>Время</th><th>Пользователь</th><th>Вопрос</th><th>Статус</th><th>Время ответа, миллисекунды</th><th>Токены всего</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>
