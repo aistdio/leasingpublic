@@ -4,12 +4,14 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -89,7 +91,17 @@ public class ControllerAdvice {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<DefaultErrorResponse> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException e) {
         log.warn("Метод {} не поддерживается: {}", e.getMethod(), e.getMessage());
-        return ResponseEntity.badRequest().body(new DefaultErrorResponse("Метод " + e.getMethod() + " не поддерживается."));
+        ResponseEntity.BodyBuilder response = ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED);
+        if (e.getSupportedHttpMethods() != null) {
+            response.allow(e.getSupportedHttpMethods().toArray(new HttpMethod[0]));
+        }
+        return response.body(new DefaultErrorResponse("Метод " + e.getMethod() + " не поддерживается."));
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<DefaultErrorResponse> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException e) {
+        log.warn("Тип содержимого запроса не поддерживается: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(new DefaultErrorResponse("Тип содержимого запроса не поддерживается. Используйте application/json."));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
