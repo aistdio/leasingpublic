@@ -5,6 +5,8 @@ const messages = $('chat-messages');
 const form = $('chat-form');
 const input = $('chat-input');
 const send = $('chat-send');
+const suggestions = document.querySelectorAll('[data-testid="chat-suggestion"]');
+let busy = false;
 
 function scrollDown() {
   messages.scrollTop = messages.scrollHeight;
@@ -41,27 +43,34 @@ function errorCard(error) {
     error.requestId ? el('div', { class: 'meta' }, 'Код запроса: ' + error.requestId) : '');
 }
 
+function setBusy(value) {
+  busy = value;
+  send.disabled = value;
+  suggestions.forEach((button) => { button.disabled = value; });
+}
+
 async function ask(question) {
   const text = question.trim();
-  if (!text) return;
+  if (busy || !text) return;
   messages.append(el('div', { class: 'bubble user', testid: 'chat-question' }, text));
   const pending = el('div', { class: 'bubble pending', testid: 'chat-pending' }, 'Ассистент думает…');
   messages.append(pending);
   scrollDown();
-  send.disabled = true;
+  setBusy(true);
   try {
     const answer = await apiJson('/api/agent/ask', { method: 'POST', body: JSON.stringify({ question: text }) });
     pending.replaceWith(answerCard(answer));
   } catch (e) {
     pending.replaceWith(errorCard(e));
   } finally {
-    send.disabled = false;
+    setBusy(false);
     scrollDown();
   }
 }
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
+  if (busy) return;
   const question = input.value;
   input.value = '';
   ask(question);
@@ -72,5 +81,4 @@ input.addEventListener('keydown', (event) => {
     form.requestSubmit();
   }
 });
-document.querySelectorAll('[data-testid="chat-suggestion"]').forEach((button) =>
-  button.addEventListener('click', () => ask(button.textContent)));
+suggestions.forEach((button) => button.addEventListener('click', () => ask(button.textContent)));

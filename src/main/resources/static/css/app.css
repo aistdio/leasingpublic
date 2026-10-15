@@ -50,3 +50,4 @@ tr.clickable { cursor: pointer; }
 tr.clickable:hover { background: #f0f4f8; }
 .status-ok { color: var(--ok); }
 .status-invalid_output, .status-max_steps, .status-llm_error { color: var(--danger); }
+.card .link { color: var(--brand); }
