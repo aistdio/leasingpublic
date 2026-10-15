@@ -4,7 +4,8 @@ Spec: `docs/superpowers/specs/2026-10-14-autolease-qa-design.md` (approved 2026-
 Work phase by phase (token limits). A plan is written only for the next phase.
 
 ## Next
-Phase 1 — executing plan `docs/superpowers/plans/2026-10-15-autolease-v1.0.md` via superpowers:subagent-driven-development (Sonnet implementer/reviewer). Progress ledger: `.superpowers/sdd/2026-10-15-autolease-v1.0/progress.md` (git-ignored) — resume at first task without "complete".
+Phase 1 — executing plan `docs/superpowers/plans/2026-10-15-autolease-v1.0.md` via superpowers:subagent-driven-development (Sonnet implementer/reviewer). Progress ledger: `.superpowers/sdd/2026-10-15-autolease-v1.0/progress.md` (git-ignored) — resume at first task without "complete" (now: Task 14, branch `feature/LEAS-8-leasing-assistant`, Tasks 10–13 done there, not merged yet).
+Before Task 16: start Ollama on the host (`ollama serve`), check stand `docker compose --profile core up -d`.
 Env: JDK = `C:\Program Files\JetBrains\PyCharm2025.3\jbr` (no system Java); Ollama has qwen3:8b + qwen3:4b; Docker 29.
 
 ## Done
